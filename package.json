@@ -1,0 +1,11 @@
+{
+  "name": "lightTable",
+  "version": "1.0.0",
+  "description": "Client JavaScript for LightTable ",
+  "main": "dist/lightTable.node.js",
+  "browser": "dist/lightTable.browser.js",
+
+  "keywords": ["api", "lightTable", "database", "client"],
+  "author": "Labelflow",
+"license": "UNLICENSED"
+}
