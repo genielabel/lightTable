@@ -14626,7 +14626,7 @@ var LightTable = class {
     return model;
   }
 };
-module.exports = LightTable;
+module.exports = { default: LightTable };
 /*! Bundled license information:
 
 mime-db/index.js:

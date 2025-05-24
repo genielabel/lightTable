@@ -2568,7 +2568,7 @@
           return model;
         }
       };
-      module.exports = LightTable;
+      module.exports = { default: LightTable };
     }
   });
   require_lighttable();
