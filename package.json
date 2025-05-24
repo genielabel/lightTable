@@ -1,6 +1,6 @@
 {
   "name": "@lighttable/lighttable",
-  "version": "1.0.0",
+  "version": "1.0.0-beta001",
   "description": "Client JavaScript for LightTable",
   "main": "dist/lightTable.node.js",
   "browser": "dist/lightTable.browser.js",
