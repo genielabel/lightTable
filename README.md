@@ -5,7 +5,7 @@ Universal SDK to access the LightTable  (compatible with Node.js, React, Next.js
 ## Installation
 
 ```bash
-npm install @lighttable/lighttable axios
+npm install @lighttable/lighttable 
 ```
 
 ## Usage
@@ -65,4 +65,4 @@ console.log(result.token); // JWT token
 MIT
 
 ## Repository
-[https://github.com/genielabel/lightTable](https://github.com/genielabel/lightTable) 
+[https://github.com/genielabel/lightTable](https://github.com/genielabel/lightTable)
