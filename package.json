@@ -1,9 +1,9 @@
 {
-  "name": "@labelflow/lighttable",
+  "name": "@lighttable/lighttable",
   "version": "1.0.0-beta004",
   "description": "Universal SDK to access LightTable (compatible with Node.js, React, Next.js, Vite).",
   "main": "lighttable.js",
- 
+
   "exports": {
     ".": {
       "import": "./lighttable.js",
