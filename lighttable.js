@@ -1,23 +1,35 @@
 const axios = require('axios');
 const { addRxPlugin, createRxDatabase } = require('rxdb');
-const { RxDBReplicationCouchDBPlugin } = require('@rxdb/replication-couchdb');
-const NetInfo = typeof window !== 'undefined' ? require('@react-native-community/netinfo') : null;
-const p2pSync = require('./p2p-sync');
-const AsyncStorage = require('@react-native-async-storage/async-storage');
+import { replicateCouchDB, getFetchWithCouchDBAuthorization } from 'rxdb/plugins/replication-couchdb';
 
-// Chargement conditionnel des adaptateurs selon la plateforme
-let IndexedDBAdapter, SQLiteAdapter;
-if (typeof window !== 'undefined') {
-  IndexedDBAdapter = require('pouchdb-adapter-idb');
-  if (window.navigator && window.navigator.product === 'ReactNative') {
+// Correction des imports natifs pour compatibilité universelle
+let NetInfo = null;
+let SQLiteAdapter = null;
+let IndexedDBAdapter = null;
+let AsyncStorage = null;
+
+const isReactNative = typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
+
+if (isReactNative) {
+  try {
+    NetInfo = require('@react-native-community/netinfo');
     SQLiteAdapter = require('pouchdb-adapter-react-native-sqlite');
+    AsyncStorage = require('@react-native-async-storage/async-storage');
+  } catch (e) {
+    // Optionally log or throw if you want to force install
   }
+} else if (typeof window !== 'undefined') {
+  try {
+    IndexedDBAdapter = require('pouchdb-adapter-idb');
+  } catch (e) {}
 }
+
+const p2pSync = require('./p2p-sync');
 
 class LightTable {
   constructor({ baseUrl, store, token = null, allowOffline = false, allowP2P = false }) {
     this.baseUrl = (baseUrl || 'https://mfumu.labelflow.co/sdk/v1/lighttable').replace(/\/$/, '');
-    if (!store) throw new Error("`store` est requis");
+    if (!store) throw new Error("`store` is required");
 
     this.store = store;
     this.allowOffline = allowOffline;
@@ -26,26 +38,24 @@ class LightTable {
     this.db = null;
     this.syncQueue = new Map();
 
-    // Configuration RxDB si offline activé
+    // RxDB config for offline
     if (this.allowOffline) {
-      addRxPlugin(RxDBReplicationCouchDBPlugin);
-      if (typeof window !== 'undefined') {
-        if (window.navigator && window.navigator.product === 'ReactNative') {
-          addRxPlugin(SQLiteAdapter);
-        } else {
-          addRxPlugin(IndexedDBAdapter);
-        }
+      if (isReactNative) {
+        if (SQLiteAdapter) addRxPlugin(SQLiteAdapter);
+      } else if (IndexedDBAdapter) {
+        addRxPlugin(IndexedDBAdapter);
       }
     }
 
-    // Vérifie si un token existe déjà dans localStorage
-    if (!token && typeof window === 'undefined') {
+    // Token storage
+    if (!token && isReactNative && AsyncStorage) {
       token = AsyncStorage.getItem('lighttable_token');
+    } else if (!token && typeof window !== 'undefined' && window.localStorage) {
+      token = localStorage.getItem('lighttable_token');
     }
-
     this.token = token;
 
-    // Initialisation de la surveillance réseau et P2P
+    // Network and P2P
     this._initNetworkMonitoring();
     if (this.allowP2P) {
       this._initP2P();
@@ -117,9 +127,7 @@ class LightTable {
     if (!this.db && this.allowOffline) {
       this.db = await createRxDatabase({
         name: 'lighttable_' + this.store,
-        adapter: typeof window !== 'undefined' ? 
-          (window.navigator && window.navigator.product === 'ReactNative' ? 'react-native-sqlite' : 'idb') 
-          : 'memory',
+        adapter: isReactNative ? 'react-native-sqlite' : 'idb',
         multiInstance: false,
         eventReduce: true
       });
@@ -138,9 +146,9 @@ class LightTable {
 
   setToken(token) {
     this.token = token;
-    if (typeof window === 'undefined') {
+    if (isReactNative && AsyncStorage) {
       AsyncStorage.setItem('lighttable_token', token);
-    } else if (window.localStorage) {
+    } else if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem('lighttable_token', token);
     }
   }
@@ -422,4 +430,6 @@ class LightTable {
   }
 }
 
+export default LightTable;
+// Pour compatibilité CommonJS
 module.exports = LightTable;

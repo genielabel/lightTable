@@ -48,8 +48,7 @@ const lightTable = new LightTable({
       _id: 'product-1',
       name: 'Sneakers',
       price: 149.99,
-      __store: lightTable.store,
-      __lightTable: true
+     
     });
 
   // Find products
