@@ -1,47 +1,47 @@
-# LightTable Hybrid Sync
+# LightTable
 
-Une extension de LightTable qui ajoute la synchronisation hybride avec support offline, P2P et résolution de conflits.
+LightTable is a modern data synchronization SDK with offline support, P2P, and conflict resolution for web and React Native.
 
-## Installation rapide
+## Quick Installation
 
 ```bash
-npm install lighttable
+npm install @lighttable/lighttable
 ```
 
-> **Toutes les dépendances nécessaires (RxDB, PouchDB, WebRTC, BLE, etc.) sont installées automatiquement.**
-> - Sur le web, seules les dépendances utiles sont chargées.
-> - Sur React Native, les modules BLE/Wifi/NetInfo sont installés automatiquement.
+> **All required dependencies (RxDB, PouchDB, WebRTC, BLE, etc.) are installed automatically.**
+> - On web, only the necessary dependencies are loaded.
+> - On React Native, BLE/Wifi/NetInfo modules are installed automatically.
 
-## Compatibilité
+## Compatibility
 - **Web** (React, Vite, Next.js, etc.)
 - **Mobile** (React Native)
 - Node.js >= 14
 
-## Fonctionnalités
+## Features
 
-- ✅ Synchronisation automatique (Online ↔ Offline)
-- ✅ Mode P2P (WebRTC sur web, BLE/Wifi sur mobile)
-- ✅ Gestion des conflits
-- ✅ File d'attente de synchronisation
-- ✅ Compatible Web et React Native
-- ✅ Support temps réel
-- ✅ Nettoyage automatique des données
+- ✅ Automatic synchronization (Online ↔ Offline)
+- ✅ P2P mode (WebRTC on web, BLE/Wifi on mobile)
+- ✅ Conflict management
+- ✅ Synchronization queue
+- ✅ Compatible with Web and React Native
+- ✅ Real-time support
+- ✅ Automatic data cleanup
 
-## Utilisation
+## Usage
 
 ```javascript
-const LightTable = require('lighttable');
+import LightTable from '@lighttable/lighttable';
 
 const lightTable = new LightTable({
   store: 'YOUR_STORE_ID',
   token: 'YOUR_JWT_TOKEN',
-  allowOffline: true, // Active le support offline
-  allowP2P: true      // Active le P2P (BLE sur mobile, WebRTC sur web)
+  allowOffline: true, // Enable offline support
+  allowP2P: true      // Enable P2P (BLE on mobile, WebRTC on web)
 });
 
-// Utilisation normale - la gestion online/offline/P2P est automatique
+// Normal usage - online/offline/P2P management is automatic
 (async () => {
-  // Création d'un produit
+  // Create a product
   await lightTable
     .collection('products')
     .create({
@@ -52,59 +52,59 @@ const lightTable = new LightTable({
       __lightTable: true
     });
 
-  // Recherche de produits
+  // Find products
   const products = await lightTable
     .collection('products')
     .find()
     .filter({ price: { $lt: 200 } })
     .exec();
 
-  console.log('Produits trouvés:', products);
+  console.log('Found products:', products);
 })();
 ```
 
-## Modes de Synchronisation
+## Synchronization Modes
 
 ### Online (Net)
-- Synchronisation automatique avec le serveur
-- Réplication bidirectionnelle en temps réel
-- Gestion des conflits côté serveur
+- Automatic synchronization with the server
+- Real-time bidirectional replication
+- Server-side conflict management
 
 ### Offline (Local)
-- Stockage local des modifications
-- File d'attente de synchronisation
-- Reprise automatique lors de la reconnexion
+- Local storage of changes
+- Synchronization queue
+- Automatic resume on reconnection
 
 ### P2P (LAN/BLE/WebRTC)
-- **Web** : Synchronisation directe entre navigateurs via WebRTC (LAN)
-- **Mobile** : Synchronisation directe via Bluetooth Low Energy ou Wifi P2P
-- Pas besoin de connexion Internet
+- **Web**: Direct synchronization between browsers via WebRTC (LAN)
+- **Mobile**: Direct synchronization via Bluetooth Low Energy or Wifi P2P
+- No Internet connection required
 
-## Gestion des Conflits
+## Conflict Management
 
-La résolution des conflits se fait selon la stratégie suivante :
-1. Timestamp le plus récent gagne
-2. Conservation des deux versions en cas de conflit non résolu
-3. Possibilité de définir une stratégie personnalisée
+Conflict resolution follows this strategy:
+1. The most recent timestamp wins
+2. Both versions are kept if the conflict cannot be resolved
+3. You can define a custom strategy
 
-## Sécurité
+## Security
 
-- Authentification via JWT
-- Chiffrement des données en transit
-- Validation des permissions côté serveur
+- Authentication via JWT
+- Data encryption in transit
+- Permission validation on the server side
 
-## Nettoyage
+## Cleanup
 
-Les données sont automatiquement nettoyées :
-- Après 7 jours d'inactivité
-- Lors de la déconnexion
-- Sur demande via `lightTable.cleanup()`
+Data is automatically cleaned up:
+- After 7 days of inactivity
+- On logout
+- On demand via `lightTable.cleanup()`
 
 ## Limitations
 
-- Taille maximale des documents : 16MB
-- Nombre maximal de connexions BLE/WebRTC simultanées : selon le matériel
-- Bande passante BLE/WebRTC limitée
+- Maximum document size: 16MB
+- Maximum number of simultaneous BLE/WebRTC connections: depends on hardware
+- BLE/WebRTC bandwidth is limited
 
 ## Required Permissions
 
@@ -150,8 +150,8 @@ Les données sont automatiquement nettoyées :
 
 ## Contribution
 
-Les contributions sont les bienvenues ! Voir CONTRIBUTING.md pour plus de détails.
+Contributions are welcome! See CONTRIBUTING.md for more details.
 
-## Licence
+## License
 
 MIT
