@@ -1,7 +1,7 @@
 {
   "name": "@lighttable/lighttable",
-  "version": "1.0.0-beta010",
-  "description": "LightTable SDK avec synchronisation hybride",
+  "version": "1.0.0-beta004",
+  "description": "Universal SDK to access LightTable (compatible with Node.js, React, Next.js, Vite).",
   "main": "lighttable.js",
 
   "exports": {
@@ -18,24 +18,9 @@
     "url": "https://github.com/genielabel/lightTable.git"
   },
   "dependencies": {
-    "axios": "^1.6.7",
-    "rxdb": "^15.0.0",
-    "pouchdb-adapter-idb": "^8.0.1",
-    "pouchdb-adapter-react-native-sqlite": "^3.0.1",
-    "react-native-ble-plx": "^3.1.2",
-    "react-native-wifi-p2p": "^3.0.2",
-    "@react-native-community/netinfo": "^11.2.1",
-    "simple-peer": "^9.11.1",
-    "socket.io-client": "^4.7.4"
+    "axios": ">=0.27.0"
   },
-  "peerDependencies": {
-    "react-native": ">=0.60.0"
-  },
-  "optionalDependencies": {
-    "react-native-ble-plx": "^3.1.2",
-    "react-native-wifi-p2p": "^3.0.2",
-    "@react-native-community/netinfo": "^11.2.1"
-  },
+  "peerDependencies": {},
   "engines": {
     "node": ">=14.0.0"
   },
