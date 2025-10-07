@@ -1,16 +1,25 @@
 {
   "name": "@lighttable/lighttable",
-  "version": "1.0.0-beta004",
+  "version": "1.0.0-beta020",
   "description": "Universal SDK to access LightTable (compatible with Node.js, React, Next.js, Vite).",
   "main": "lighttable.js",
-
   "exports": {
     ".": {
       "import": "./lighttable.js",
       "require": "./lighttable.js"
     }
   },
-  "keywords": ["sdk", "lighttable", "mongoose","mongo", "api", "react", "nextjs", "vite", "nodejs"],
+  "keywords": [
+    "sdk",
+    "lighttable",
+    "mongoose",
+    "mongo",
+    "api",
+    "react",
+    "nextjs",
+    "vite",
+    "nodejs"
+  ],
   "author": "Labelflow",
   "license": "MIT",
   "repository": {
@@ -18,9 +27,9 @@
     "url": "https://github.com/genielabel/lightTable.git"
   },
   "dependencies": {
+    "@lighttable/lighttable": "github:genielabel/lightTable",
     "axios": ">=0.27.0"
   },
-  "peerDependencies": {},
   "engines": {
     "node": ">=14.0.0"
   },
