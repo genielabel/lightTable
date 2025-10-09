@@ -113,10 +113,20 @@ class LightTable {
   }
 
 
+    async checkout(payload) {
+      const res = await axios.put(`${this.baseUrl}/checkout`, payload, {
+        headers: {
+          ...this._headers(),
+          'x-store-id': this.store
+        }
+      });
+      return res.data;
+    }
+
 
 
   collection(name) {
-    if (!name) throw new Error("Nom de collection requis");
+    if (!name) throw new Error("Nom de collection ID  requis");
 
     /**
      * QueryBuilder chaînable pour toutes les options Mongoose :
@@ -533,12 +543,12 @@ invoices(name) {
     };
 
     const operations = [
-      'find', 'findOne', 'count'
+      'find', 'findOne', 'count', 'countDocuments'
     ];
 
     const model = {};
     for (const op of operations) {
-      if (["find", "findOne","products" ].includes(op)) {
+      if (["find", "findOne" ].includes(op)) {
         model[op] = (args = {}) => new QueryBuilder(op, [args]);
       } else {
         model[op] = (...args) => call(op, args);
@@ -547,6 +557,99 @@ invoices(name) {
 
     return model;
   }
+
+
+
+
+
+
+
+  categories(name) {
+      //if (!name) throw new Error("Nom de collection requis");
+
+      /**
+       * QueryBuilder chaînable pour toutes les options Mongoose :
+       * .filter(obj)      // filtre (query)
+       * .sort(obj)        // tri
+       * .limit(n)         // limite
+       * .skip(n)          // décalage
+       * .select(str|obj)  // projection
+       * .populate(str|obj)// jointure
+       * .lean()           // lean
+       * .exec()           // exécute la requête
+       *
+       * Exemple :
+       * collection('maCollection')
+       *   .find()
+       *   .filter({ statut: 'actif' })
+       *   .sort({ createdAt: -1 })
+       *   .limit(10)
+       *   .skip(20)
+       *   .select('nom age')
+       *   .populate('profile')
+       *   .lean()
+       *   .exec()
+       */
+      class QueryBuilder {
+        constructor(operation, initialArgs = []) {
+          this.operation = operation;
+          this.args = initialArgs.length ? initialArgs : [{}];
+        }
+        sort(sortObj) { this.args[0].sort = sortObj; return this; }
+        limit(limitVal) { this.args[0].limit = limitVal; return this; }
+        skip(skipVal) { this.args[0].skip = skipVal; return this; }
+        filter(filterObj) { this.args[0].filter = filterObj; return this; }
+        select(selectVal) { this.args[0].select = selectVal; return this; }
+
+        lean() { this.args[0].lean = true; return this; }
+        async exec() { return await call(this.operation, this.args); }
+        then(res, rej) { return this.exec().then(res, rej); }
+        catch(rej) { return this.exec().catch(rej); }
+      }
+
+      const call = async (operation, args = []) => {
+        let finalArgs = args;
+        if (["find", "findOne" ].includes(operation) && args.length === 1 && typeof args[0] === "object" && args[0] !== null) {
+          let { filter = {}, limit, skip, page, sort, ...rest } = args[0];
+          if (page !== undefined && limit !== undefined) {
+            skip = (page - 1) * limit;
+          }
+
+          let query = filter;
+          let options = { ...rest };
+          if (limit !== undefined) options.limit = limit * 1;
+          if (skip !== undefined) options.skip = skip;
+          if (sort !== undefined) options.sort = sort;
+          finalArgs = [query, options];
+        }
+        const res = await axios.post(`${this.baseUrl}`, {
+          operation,
+          args: finalArgs,
+          categories: true
+        }, {
+          headers: {
+            ...this._headers(),
+            'x-store-id': this.store
+          }
+        });
+        return res.data.data;
+      };
+
+      const operations = [
+        'find', 'findOne', 'count', 'countDocuments'
+      ];
+
+      const model = {};
+      for (const op of operations) {
+        if (["find", "findOne"  ].includes(op)) {
+          model[op] = (args = {}) => new QueryBuilder(op, [args]);
+        } else {
+          model[op] = (...args) => call(op, args);
+        }
+      }
+
+      return model;
+    }
 }
 
 module.exports = LightTable;
