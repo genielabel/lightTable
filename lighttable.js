@@ -103,7 +103,7 @@ class LightTable {
 
 
   async runFuction(payload) {
-    const res = await axios.put(`${this.baseUrl}/function`, payload, {
+    const res = await axios.post(`${this.baseUrl}/function`, payload, {
       headers: {
         ...this._headers(),
         'x-store-id': this.store
@@ -114,7 +114,7 @@ class LightTable {
 
 
     async checkout(payload) {
-      const res = await axios.put(`${this.baseUrl}/checkout`, payload, {
+      const res = await axios.post(`${this.baseUrl}/checkout`, payload, {
         headers: {
           ...this._headers(),
           'x-store-id': this.store
