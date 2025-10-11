@@ -228,12 +228,15 @@ class LightTable {
       constructor(operation, initialArgs = []) {
         this.operation = operation;
         this.args = initialArgs.length ? initialArgs : [{}];
+
       }
       sort(sortObj) { this.args[0].sort = sortObj; return this; }
       limit(limitVal) { this.args[0].limit = limitVal; return this; }
       skip(skipVal) { this.args[0].skip = skipVal; return this; }
       filter(filterObj) { this.args[0].filter = filterObj; return this; }
       select(selectVal) { this.args[0].select = selectVal; return this; }
+      mainImageSize(val) {  this.args[0].mainImageSize = val; return this; }
+      thumbnailSize(val) {  this.args[0].thumbnailSize = val; return this; }
 
       lean() { this.args[0].lean = true; return this; }
       async exec() { return await call(this.operation, this.args); }
@@ -259,7 +262,8 @@ class LightTable {
       const res = await axios.post(`${this.baseUrl}`, {
         operation,
         args: finalArgs,
-        products: true
+        products: true,
+
       }, {
         headers: {
           ...this._headers(),
@@ -594,12 +598,15 @@ invoices(name) {
         constructor(operation, initialArgs = []) {
           this.operation = operation;
           this.args = initialArgs.length ? initialArgs : [{}];
+
         }
         sort(sortObj) { this.args[0].sort = sortObj; return this; }
         limit(limitVal) { this.args[0].limit = limitVal; return this; }
         skip(skipVal) { this.args[0].skip = skipVal; return this; }
         filter(filterObj) { this.args[0].filter = filterObj; return this; }
         select(selectVal) { this.args[0].select = selectVal; return this; }
+        mainImageSize(val) {  this.args[0].mainImageSize = val; return this; }
+        thumbnailSize(val) {  this.args[0].thumbnailSize = val; return this; }
 
         lean() { this.args[0].lean = true; return this; }
         async exec() { return await call(this.operation, this.args); }
@@ -625,7 +632,8 @@ invoices(name) {
         const res = await axios.post(`${this.baseUrl}`, {
           operation,
           args: finalArgs,
-          categories: true
+          categories: true,
+         
         }, {
           headers: {
             ...this._headers(),
