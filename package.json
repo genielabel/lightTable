@@ -1,6 +1,6 @@
 {
   "name": "@lighttable/lighttable",
-  "version": "1.0.0-beta025",
+  "version": "1.0.0-beta026",
   "description": "Universal SDK to access LightTable (compatible with Node.js, React, Next.js, Vite).",
   "main": "lighttable.js",
   "exports": {

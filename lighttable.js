@@ -170,14 +170,19 @@ class LightTable {
 
     const call = async (operation, args = []) => {
       let finalArgs = args;
+      let params;
       if (["find", "findOne" ].includes(operation) && args.length === 1 && typeof args[0] === "object" && args[0] !== null) {
         let { filter = {}, limit, skip, page, sort, ...rest } = args[0];
         if (page !== undefined && limit !== undefined) {
           skip = (page - 1) * limit;
         }
 
+
+
+        params = rest;
+
         let query = filter;
-        let options = { ...rest };
+        let options = {};
         if (limit !== undefined) options.limit = limit * 1;
         if (skip !== undefined) options.skip = skip;
         if (sort !== undefined) options.sort = sort;
@@ -186,6 +191,7 @@ class LightTable {
       const res = await axios.post(`${this.baseUrl}`, {
         operation,
         args: finalArgs,
+        params,
         collection: name
       }, {
         headers: {
@@ -246,22 +252,31 @@ class LightTable {
 
     const call = async (operation, args = []) => {
       let finalArgs = args;
+          let params;
+
       if (["find", "findOne" ].includes(operation) && args.length === 1 && typeof args[0] === "object" && args[0] !== null) {
         let { filter = {}, limit, skip, page, sort, ...rest } = args[0];
         if (page !== undefined && limit !== undefined) {
           skip = (page - 1) * limit;
         }
 
+         params = rest;
+
         let query = filter;
-        let options = { ...rest };
+        let options = {   };
         if (limit !== undefined) options.limit = limit * 1;
         if (skip !== undefined) options.skip = skip;
         if (sort !== undefined) options.sort = sort;
         finalArgs = [query, options];
       }
+
+      delete params.thumbnailSize
+      delete params.mainImageSize
+
       const res = await axios.post(`${this.baseUrl}`, {
         operation,
         args: finalArgs,
+          params,
         products: true,
 
       }, {
@@ -337,14 +352,18 @@ class LightTable {
 
     const call = async (operation, args = []) => {
       let finalArgs = args;
+            let params;
       if (["find", "findOne" ].includes(operation) && args.length === 1 && typeof args[0] === "object" && args[0] !== null) {
         let { filter = {}, limit, skip, page, sort, ...rest } = args[0];
         if (page !== undefined && limit !== undefined) {
           skip = (page - 1) * limit;
         }
 
+
+         params = rest;
+
         let query = filter;
-        let options = { ...rest };
+        let options = {  };
         if (limit !== undefined) options.limit = limit * 1;
         if (skip !== undefined) options.skip = skip;
         if (sort !== undefined) options.sort = sort;
@@ -353,6 +372,7 @@ class LightTable {
       const res = await axios.post(`${this.baseUrl}`, {
         operation,
         args: finalArgs,
+          params,
         services: true
       }, {
         headers: {
@@ -430,14 +450,16 @@ class LightTable {
 
     const call = async (operation, args = []) => {
       let finalArgs = args;
+            let params;
       if (["find", "findOne" ].includes(operation) && args.length === 1 && typeof args[0] === "object" && args[0] !== null) {
         let { filter = {}, limit, skip, page, sort, ...rest } = args[0];
         if (page !== undefined && limit !== undefined) {
           skip = (page - 1) * limit;
         }
+               params = rest;
 
         let query = filter;
-        let options = { ...rest };
+        let options = {   };
         if (limit !== undefined) options.limit = limit * 1;
         if (skip !== undefined) options.skip = skip;
         if (sort !== undefined) options.sort = sort;
@@ -446,6 +468,7 @@ class LightTable {
       const res = await axios.post(`${this.baseUrl}`, {
         operation,
         args: finalArgs,
+          params,
         orders: true
       }, {
         headers: {
@@ -520,14 +543,17 @@ invoices(name) {
 
     const call = async (operation, args = []) => {
       let finalArgs = args;
+            let params;
       if (["find", "findOne" ].includes(operation) && args.length === 1 && typeof args[0] === "object" && args[0] !== null) {
         let { filter = {}, limit, skip, page, sort, ...rest } = args[0];
         if (page !== undefined && limit !== undefined) {
           skip = (page - 1) * limit;
         }
 
+         params = rest;
+
         let query = filter;
-        let options = { ...rest };
+        let options = {   };
         if (limit !== undefined) options.limit = limit * 1;
         if (skip !== undefined) options.skip = skip;
         if (sort !== undefined) options.sort = sort;
@@ -536,6 +562,7 @@ invoices(name) {
       const res = await axios.post(`${this.baseUrl}`, {
         operation,
         args: finalArgs,
+          params,
         invoices: true
       }, {
         headers: {
@@ -616,24 +643,30 @@ invoices(name) {
 
       const call = async (operation, args = []) => {
         let finalArgs = args;
+          let params;
         if (["find", "findOne" ].includes(operation) && args.length === 1 && typeof args[0] === "object" && args[0] !== null) {
           let { filter = {}, limit, skip, page, sort, ...rest } = args[0];
           if (page !== undefined && limit !== undefined) {
             skip = (page - 1) * limit;
           }
 
+           params = rest;
           let query = filter;
-          let options = { ...rest };
+          let options = {   };
           if (limit !== undefined) options.limit = limit * 1;
           if (skip !== undefined) options.skip = skip;
           if (sort !== undefined) options.sort = sort;
           finalArgs = [query, options];
         }
+
+        delete params.thumbnailSize
+        delete params.mainImageSize
         const res = await axios.post(`${this.baseUrl}`, {
           operation,
           args: finalArgs,
+            params,
           categories: true,
-         
+
         }, {
           headers: {
             ...this._headers(),
