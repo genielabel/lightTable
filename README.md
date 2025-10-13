@@ -18,7 +18,7 @@ import LightTable from '@lighttable/lighttable';
 // const LightTable = require('@lighttable/lighttable');
 
 const lightTable = new LightTable({
-  baseUrl: 'https://mfumu.labelflow.co/sdk/v1/lighttable',
+  baseUrl: 'https://lb01.genielabel.com/sdk/v1/lighttable',
   store: 'YOUR_STORE_ID',
 });
 
@@ -86,7 +86,7 @@ const products = await lightTable
 
 
 
-## Example: Checkout 
+## Example: Checkout
 ```js
 import LightTable from '@lighttable/lighttable';
 // or in CommonJS:
