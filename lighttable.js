@@ -1,11 +1,12 @@
 const axios = require('axios');
 
 class LightTable {
-  constructor({ baseUrl, store, token = null }) {
+  constructor({ baseUrl, store, token = null,system = null }) {
     this.baseUrl = (baseUrl || 'https://lb01.genielabel.com/sdk/v1/lighttable').replace(/\/$/, '');
     if (!store) throw new Error("`store` est requis");
 
     this.store = store;
+    this.system = system;
 
     // Vérifie si un token existe déjà dans localStorage
     if (!token && typeof window !== 'undefined' && window.localStorage) {
@@ -34,6 +35,17 @@ class LightTable {
       throw new Error("`type` et `phone` ou `email` sont requis");
     }
 
+
+    if (this.system) {
+
+      const res = await this.system.post(`${this.baseUrl}/auth-otp`, { type, phone, email }, {
+        headers: this._headers()
+      });
+
+          return res.data;
+
+    }
+
     const res = await axios.post(`${this.baseUrl}/auth-otp`, { type, phone, email }, {
       headers: this._headers()
     });
@@ -44,6 +56,17 @@ class LightTable {
 
 
   async getSignedUrl(key) {
+
+
+
+    if (this.system) {
+
+      const res = await this.system.post(`${this.baseUrl}/signed-url`, { key}, {
+        headers: this._headers()
+      });
+          return res.data;
+
+    }
 
     const res = await axios.post(`${this.baseUrl}/signed-url`, { key}, {
       headers: this._headers()
@@ -57,6 +80,34 @@ class LightTable {
     if (!code || (!phone && !email)) {
       throw new Error("`code` et `phone` ou `email` sont requis");
     }
+
+
+
+    if (this.system) {
+      const res = await this.system.post(`${this.baseUrl}/auth-otp/verify`, { code, phone, email }, {
+
+        // le store est requis ici aussi
+        params: {},
+        headers: {
+          ...this._headers(),
+          'x-store-id': this.store
+        }
+      });
+
+      if (res.data?.token) {
+        this.token = res.data.token;
+
+        // Environnement navigateur : stocker dans localStorage
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem('lighttable_token', this.token);
+        }
+      }
+
+      return res.data;
+
+    }
+
+
 
     const res = await axios.post(`${this.baseUrl}/auth-otp/verify`, { code, phone, email }, {
 
@@ -81,6 +132,18 @@ class LightTable {
   }
 
   async getMe() {
+
+
+        if (this.system) {
+          const res = await this.system.get(`${this.baseUrl}/me`, {
+            headers: {
+              ...this._headers(),
+              'x-store-id': this.store
+            }
+          });
+          return res.data;
+
+        }
     const res = await axios.get(`${this.baseUrl}/me`, {
       headers: {
         ...this._headers(),
@@ -91,6 +154,22 @@ class LightTable {
   }
 
   async updateMe(payload) {
+
+
+
+    if (this.system) {
+
+
+      const res = await this.system.put(`${this.baseUrl}/me`, payload, {
+        headers: {
+          ...this._headers(),
+          'x-store-id': this.store
+        }
+      });
+      return res.data;
+
+    }
+
     const res = await axios.put(`${this.baseUrl}/me`, payload, {
       headers: {
         ...this._headers(),
@@ -103,6 +182,22 @@ class LightTable {
 
 
   async runFuction(payload) {
+
+
+
+        if (this.system) {
+
+          const res = await this.system.post(`${this.baseUrl}/function`, payload, {
+            headers: {
+              ...this._headers(),
+              'x-store-id': this.store
+            }
+          });
+          return res.data;
+
+        }
+
+
     const res = await axios.post(`${this.baseUrl}/function`, payload, {
       headers: {
         ...this._headers(),
@@ -114,6 +209,24 @@ class LightTable {
 
 
     async checkout(payload) {
+
+
+      if (this.system) {
+
+
+
+
+        const res = await this.system.post(`${this.baseUrl}/checkout`, payload, {
+          headers: {
+            ...this._headers(),
+            'x-store-id': this.store
+          }
+        });
+        return res.data;
+
+      }
+
+
       const res = await axios.post(`${this.baseUrl}/checkout`, payload, {
         headers: {
           ...this._headers(),
@@ -188,6 +301,32 @@ class LightTable {
         if (sort !== undefined) options.sort = sort;
         finalArgs = [query, options];
       }
+
+
+
+
+      if (this.system) {
+
+
+
+
+
+
+        const res = await this.system.post(`${this.baseUrl}`, {
+          operation,
+          args: finalArgs,
+          params,
+          collection: name
+        }, {
+          headers: {
+            ...this._headers(),
+            'x-store-id': this.store
+          }
+        });
+        return res.data.data;
+
+      }
+
       const res = await axios.post(`${this.baseUrl}`, {
         operation,
         args: finalArgs,
@@ -272,6 +411,32 @@ class LightTable {
 
       delete params.thumbnailSize
       delete params.mainImageSize
+
+
+
+
+      if (this.system) {
+
+
+
+
+
+        const res = await this.system.post(`${this.baseUrl}`, {
+          operation,
+          args: finalArgs,
+            params,
+          products: true,
+
+        }, {
+          headers: {
+            ...this._headers(),
+            'x-store-id': this.store
+          }
+        });
+        return res.data.data;
+
+      }
+
 
       const res = await axios.post(`${this.baseUrl}`, {
         operation,
@@ -369,6 +534,33 @@ class LightTable {
         if (sort !== undefined) options.sort = sort;
         finalArgs = [query, options];
       }
+
+
+
+
+
+
+      if (this.system) {
+
+
+
+
+
+        const res = await this.system.post(`${this.baseUrl}`, {
+          operation,
+          args: finalArgs,
+            params,
+          services: true
+        }, {
+          headers: {
+            ...this._headers(),
+            'x-store-id': this.store
+          }
+        });
+        return res.data.data;
+
+      }
+
       const res = await axios.post(`${this.baseUrl}`, {
         operation,
         args: finalArgs,
@@ -465,6 +657,30 @@ class LightTable {
         if (sort !== undefined) options.sort = sort;
         finalArgs = [query, options];
       }
+
+
+
+
+      if (this.system) {
+
+
+
+
+
+        const res = await this.system.post(`${this.baseUrl}`, {
+          operation,
+          args: finalArgs,
+            params,
+          orders: true
+        }, {
+          headers: {
+            ...this._headers(),
+            'x-store-id': this.store
+          }
+        });
+        return res.data.data;
+
+      }
       const res = await axios.post(`${this.baseUrl}`, {
         operation,
         args: finalArgs,
@@ -559,6 +775,32 @@ invoices(name) {
         if (sort !== undefined) options.sort = sort;
         finalArgs = [query, options];
       }
+
+
+
+      if (this.system) {
+
+
+
+
+
+        const res = await this.system.post(`${this.baseUrl}`, {
+          operation,
+          args: finalArgs,
+            params,
+
+          invoices: true
+        }, {
+          headers: {
+            ...this._headers(),
+            'x-store-id': this.store
+          }
+        });
+        return res.data.data;
+
+      }
+
+
       const res = await axios.post(`${this.baseUrl}`, {
         operation,
         args: finalArgs,
@@ -661,6 +903,32 @@ invoices(name) {
 
         delete params.thumbnailSize
         delete params.mainImageSize
+
+
+
+
+        if (this.system) {
+
+
+
+
+
+          const res = await this.system.post(`${this.baseUrl}`, {
+            operation,
+            args: finalArgs,
+              params,
+            categories: true,
+
+          }, {
+            headers: {
+              ...this._headers(),
+              'x-store-id': this.store
+            }
+          });
+          return res.data.data;
+
+        }
+
         const res = await axios.post(`${this.baseUrl}`, {
           operation,
           args: finalArgs,

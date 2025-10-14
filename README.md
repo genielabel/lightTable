@@ -18,7 +18,11 @@ import LightTable from '@lighttable/lighttable';
 // const LightTable = require('@lighttable/lighttable');
 
 const lightTable = new LightTable({
-  baseUrl: 'https://lb01.genielabel.com/sdk/v1/lighttable',
+  baseUrl: 'https://lb01.genielabel.com/
+
+
+
+  sdk/v1/lighttable',
   store: 'YOUR_STORE_ID',
 });
 
