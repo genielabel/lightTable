@@ -1,11 +1,12 @@
 const axios = require('axios');
 
 class LightTable {
-  constructor({ baseUrl, store, token = null,system = null }) {
+  constructor({ baseUrl,marketplaceKey, store, token = null,system = null }) {
     this.baseUrl = (baseUrl || 'https://lb01.genielabel.com/sdk/v1/lighttable').replace(/\/$/, '');
     if (!store) throw new Error("`store` est requis");
 
     this.store = store;
+    this.marketplace = marketplaceKey;
     this.system = system;
 
     // Vérifie si un token existe déjà dans localStorage
@@ -26,6 +27,7 @@ class LightTable {
     return {
       'Content-Type': 'application/json',
           'x-store-id': this.store,
+            'x-marketplace-key': this.marketplace,
       ...(this.token ? { Authorization: `Bearer ${this.token}` } : {})
     };
   }
@@ -382,6 +384,7 @@ class LightTable {
       select(selectVal) { this.args[0].select = selectVal; return this; }
       mainImageSize(val) {  this.args[0].mainImageSize = val; return this; }
       thumbnailSize(val) {  this.args[0].thumbnailSize = val; return this; }
+      byStoreId(val) {  this.args[0].byStoreId = val; return this; }
 
       lean() { this.args[0].lean = true; return this; }
       async exec() { return await call(this.operation, this.args); }
@@ -391,10 +394,12 @@ class LightTable {
 
     const call = async (operation, args = []) => {
       let finalArgs = args;
+
+
           let params;
 
       if (["find", "findOne" ].includes(operation) && args.length === 1 && typeof args[0] === "object" && args[0] !== null) {
-        let { filter = {}, limit, skip, page, sort, ...rest } = args[0];
+        let { filter = {}, limit, skip, page, sort,byStoreId, ...rest } = args[0];
         if (page !== undefined && limit !== undefined) {
           skip = (page - 1) * limit;
         }
@@ -406,6 +411,7 @@ class LightTable {
         if (limit !== undefined) options.limit = limit * 1;
         if (skip !== undefined) options.skip = skip;
         if (sort !== undefined) options.sort = sort;
+
         finalArgs = [query, options];
       }
 
@@ -426,6 +432,7 @@ class LightTable {
           args: finalArgs,
             params,
           products: true,
+            byStoreId:args[0].byStoreId,
 
         }, {
           headers: {
@@ -443,6 +450,7 @@ class LightTable {
         args: finalArgs,
           params,
         products: true,
+          byStoreId: args[0].byStoreId,
 
       }, {
         headers: {
@@ -454,7 +462,7 @@ class LightTable {
     };
 
     const operations = [
-      'find', 'findOne', 'count', 'countDocuments'
+      'find', 'findOne', 'count', 'countDocuments',
 
 
     ];
@@ -508,6 +516,7 @@ class LightTable {
       skip(skipVal) { this.args[0].skip = skipVal; return this; }
       filter(filterObj) { this.args[0].filter = filterObj; return this; }
       select(selectVal) { this.args[0].select = selectVal; return this; }
+      byStoreId(val) {  this.args[0].byStoreId = val; return this; }
 
       lean() { this.args[0].lean = true; return this; }
       async exec() { return await call(this.operation, this.args); }
@@ -550,7 +559,8 @@ class LightTable {
           operation,
           args: finalArgs,
             params,
-          services: true
+          services: true,
+          byStoreId: args[0].byStoreId,
         }, {
           headers: {
             ...this._headers(),
@@ -565,7 +575,8 @@ class LightTable {
         operation,
         args: finalArgs,
           params,
-        services: true
+        services: true,
+        byStoreId: args[0].byStoreId,
       }, {
         headers: {
           ...this._headers(),
@@ -633,6 +644,7 @@ class LightTable {
       skip(skipVal) { this.args[0].skip = skipVal; return this; }
       filter(filterObj) { this.args[0].filter = filterObj; return this; }
       select(selectVal) { this.args[0].select = selectVal; return this; }
+          byStoreId(val) {  this.args[0].byStoreId = val; return this; }
 
       lean() { this.args[0].lean = true; return this; }
       async exec() { return await call(this.operation, this.args); }
@@ -671,7 +683,8 @@ class LightTable {
           operation,
           args: finalArgs,
             params,
-          orders: true
+          orders: true,
+          byStoreId: args[0].byStoreId,
         }, {
           headers: {
             ...this._headers(),
@@ -685,7 +698,8 @@ class LightTable {
         operation,
         args: finalArgs,
           params,
-        orders: true
+        orders: true,
+        byStoreId: args[0].byStoreId,
       }, {
         headers: {
           ...this._headers(),
@@ -750,6 +764,7 @@ invoices(name) {
       skip(skipVal) { this.args[0].skip = skipVal; return this; }
       filter(filterObj) { this.args[0].filter = filterObj; return this; }
       select(selectVal) { this.args[0].select = selectVal; return this; }
+      byStoreId(val) {  this.args[0].byStoreId = val; return this; }
 
       lean() { this.args[0].lean = true; return this; }
       async exec() { return await call(this.operation, this.args); }
@@ -789,7 +804,8 @@ invoices(name) {
           args: finalArgs,
             params,
 
-          invoices: true
+          invoices: true,
+          byStoreId: args[0].byStoreId,
         }, {
           headers: {
             ...this._headers(),
@@ -805,7 +821,8 @@ invoices(name) {
         operation,
         args: finalArgs,
           params,
-        invoices: true
+        invoices: true,
+        byStoreId: args[0].byStoreId,
       }, {
         headers: {
           ...this._headers(),
@@ -876,6 +893,7 @@ invoices(name) {
         select(selectVal) { this.args[0].select = selectVal; return this; }
         mainImageSize(val) {  this.args[0].mainImageSize = val; return this; }
         thumbnailSize(val) {  this.args[0].thumbnailSize = val; return this; }
+        byStoreId(val) {  this.args[0].byStoreId = val; return this; }
 
         lean() { this.args[0].lean = true; return this; }
         async exec() { return await call(this.operation, this.args); }
@@ -918,6 +936,7 @@ invoices(name) {
             args: finalArgs,
               params,
             categories: true,
+            byStoreId: args[0].byStoreId,
 
           }, {
             headers: {
@@ -934,6 +953,7 @@ invoices(name) {
           args: finalArgs,
             params,
           categories: true,
+          byStoreId: args[0].byStoreId,
 
         }, {
           headers: {
@@ -959,6 +979,142 @@ invoices(name) {
 
       return model;
     }
+
+
+
+
+
+
+
+
+
+
+
+    stores(name) {
+        //if (!name) throw new Error("Nom de collection requis");
+
+        /**
+         * QueryBuilder chaînable pour toutes les options Mongoose :
+         * .filter(obj)      // filtre (query)
+         * .sort(obj)        // tri
+         * .limit(n)         // limite
+         * .skip(n)          // décalage
+         * .select(str|obj)  // projection
+         * .populate(str|obj)// jointure
+         * .lean()           // lean
+         * .exec()           // exécute la requête
+         *
+         * Exemple :
+         * collection('maCollection')
+         *   .find()
+         *   .filter({ statut: 'actif' })
+         *   .sort({ createdAt: -1 })
+         *   .limit(10)
+         *   .skip(20)
+         *   .select('nom age')
+         *   .populate('profile')
+         *   .lean()
+         *   .exec()
+         */
+        class QueryBuilder {
+          constructor(operation, initialArgs = []) {
+            this.operation = operation;
+            this.args = initialArgs.length ? initialArgs : [{}];
+
+          }
+          sort(sortObj) { this.args[0].sort = sortObj; return this; }
+          limit(limitVal) { this.args[0].limit = limitVal; return this; }
+          skip(skipVal) { this.args[0].skip = skipVal; return this; }
+          filter(filterObj) { this.args[0].filter = filterObj; return this; }
+          select(selectVal) { this.args[0].select = selectVal; return this; }
+          mainImageSize(val) {  this.args[0].mainImageSize = val; return this; }
+          thumbnailSize(val) {  this.args[0].thumbnailSize = val; return this; }
+                byStoreId(val) {  this.args[0].byStoreId = val; return this; }
+
+          lean() { this.args[0].lean = true; return this; }
+          async exec() { return await call(this.operation, this.args); }
+          then(res, rej) { return this.exec().then(res, rej); }
+          catch(rej) { return this.exec().catch(rej); }
+        }
+
+        const call = async (operation, args = []) => {
+          let finalArgs = args;
+            let params;
+          if (["find", "findOne" ].includes(operation) && args.length === 1 && typeof args[0] === "object" && args[0] !== null) {
+            let { filter = {}, limit, skip, page, sort, ...rest } = args[0];
+            if (page !== undefined && limit !== undefined) {
+              skip = (page - 1) * limit;
+            }
+
+             params = rest;
+            let query = filter;
+            let options = {   };
+            if (limit !== undefined) options.limit = limit * 1;
+            if (skip !== undefined) options.skip = skip;
+            if (sort !== undefined) options.sort = sort;
+            finalArgs = [query, options];
+          }
+
+          delete params.thumbnailSize
+          delete params.mainImageSize
+
+
+
+
+          if (this.system) {
+
+
+
+
+
+            const res = await this.system.post(`${this.baseUrl}`, {
+              operation,
+              args: finalArgs,
+                params,
+              stores: true,
+                byStoreId: args[0].byStoreId,
+
+            }, {
+              headers: {
+                ...this._headers(),
+                'x-store-id': this.store
+              }
+            });
+            return res.data.data;
+
+          }
+
+          const res = await axios.post(`${this.baseUrl}`, {
+            operation,
+            args: finalArgs,
+              params,
+            stores: true,
+              byStoreId: args[0].byStoreId,
+
+          }, {
+            headers: {
+              ...this._headers(),
+              'x-store-id': this.store
+            }
+          });
+          return res.data.data;
+        };
+
+        const operations = [
+          'find', 'findOne', 'count', 'countDocuments'
+        ];
+
+        const model = {};
+        for (const op of operations) {
+          if (["find", "findOne"  ].includes(op)) {
+            model[op] = (args = {}) => new QueryBuilder(op, [args]);
+          } else {
+            model[op] = (...args) => call(op, args);
+          }
+        }
+
+        return model;
+      }
 }
 
 module.exports = LightTable;
