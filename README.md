@@ -91,8 +91,12 @@ const products = await lightTable
       "options": [
         "white"
       ],
-      "images": [
-        "69c646ee344482020a0a4501"
+      "images":[
+        {
+          "thumbnail": "https://images.labelflow.cloud/c_thumb,w_400,h_400/ytaxnmhsbtolzrhhu3t1.jpg",
+          "url": "https://images.labelflow.cloud/c_fill,w_1000,h_1000/ytaxnmhsbtolzrhhu3t1.jpg",
+          "orginal": "https://images.labelflow.cloud/v1769473983/ytaxnmhsbtolzrhhu3t1.jpg"
+        }
       ],
       "price": 34.99,
       "_id": "69c62580bbe292e4375bcfc2",
