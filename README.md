@@ -1,11 +1,11 @@
-# @lighttable/lighttable
+# @labelflowai/lighttable
 
 Universal SDK to access the LightTable  (compatible with Node.js, React, Next.js, Vite).
 
 ## Installation
 
 ```bash
-npm install @lighttable/lighttable
+npm install @labelflowai/lighttable
 ```
 
 ## Usage
@@ -13,9 +13,13 @@ npm install @lighttable/lighttable
 ### Node.js / Vite / Next.js / React
 
 ```js
-import LightTable from '@lighttable/lighttable';
+import LightTable from '@labelflowai/lighttable';
 // or in CommonJS:
-// const LightTable = require('@lighttable/lighttable');
+// const LightTable = require('@labelflowai/lighttable');
+
+// Node.js < 18 : fournissez un fetch polyfill
+// import fetch from 'node-fetch';
+// const lightTable = new LightTable({ ..., fetch });
 
 const lightTable = new LightTable({
   baseUrl: 'https://lb01.genielabel.com/
@@ -56,23 +60,46 @@ const products = await lightTable
 {
   "images": [
     {
-      "thumbnail": "https://example.com/jpg",
-      "url": "https://example.com/jpg",
-      "original": "https://example.com/jpg"
+      "thumbnail": "https://images.labelflow.cloud/c_thumb,w_400,h_400/ytaxnmhsbtolzrhhu3t1.jpg",
+      "url": "https://images.labelflow.cloud/c_fill,w_1000,h_1000/ytaxnmhsbtolzrhhu3t1.jpg",
+      "orginal": "https://images.labelflow.cloud/v1769473983/ytaxnmhsbtolzrhhu3t1.jpg"
     }
   ],
-  "price": 10000,
-  "collections": [
-    {
-      "_id": "6827857adae4fab1d79f3c51",
-      "title": "Fashion"
-    }
-  ],
-  "_id": "6827853bdae4fab1d79f3c26",
-  "name": "T-shirt nike",
-  "slug": "t-shirt-nike57814059",
+  "price": 34.99,
+  "collections": [],
+  "_id": "6978065d940c34525c2106e0",
+  "name": "Shirt one",
+  "description": "Montrer fièrement que tu y es passé avec cette t-shirt à l'effigie de la capitale Kinshasa. Design moderne et chic qui attire tout le monde.",
+  "slug": "shortny",
+  "weight": 0.5,
+  "store": "6967a16aac0f7817f0870619",
+  "deliverable": true,
   "taxable": true,
-  "formaterPrice": "10.000,00 CDF"
+  "unity": "pièce",
+  "weight_unit": "kg",
+  "variants": [
+    {
+      "options": [
+        "black"
+      ],
+      "images": [],
+      "price": 34.99,
+      "_id": "69c62580bbe292e4375bcfbc",
+      "title": "black"
+    },
+    {
+      "options": [
+        "white"
+      ],
+      "images": [
+        "69c646ee344482020a0a4501"
+      ],
+      "price": 34.99,
+      "_id": "69c62580bbe292e4375bcfc2",
+      "title": "white"
+    }
+  ],
+  "formaterPrice": "34,99 CDF"
 }
 */
 ```
@@ -92,9 +119,9 @@ const products = await lightTable
 
 ## Example: Checkout
 ```js
-import LightTable from '@lighttable/lighttable';
+import LightTable from '@labelflowai/lighttable';
 // or in CommonJS:
-// const LightTable = require('@lighttable/lighttable');
+// const LightTable = require('@labelflowai/lighttable');
 
 const lightTable = new LightTable({
   baseUrl: 'https://mfumu.labelflow.co/sdk/v1/lighttable',
@@ -108,7 +135,8 @@ const checkoutResult = await lightTable.checkout({
   items: [
     {
       product_reference: "_id:YOUR_PRODUCT_ID", // ID of the product or service
-      quantity: 1
+      quantity: 1,
+      variant_id:"variant id "
     }
   ]
 });
@@ -169,9 +197,23 @@ console.log("Link for customer to proceed with payment:", checkoutResult.link);
 - React >= 17
 - Next.js >= 12
 - Vite >= 2
+- Fetch API requise (native en Node.js >= 18 / navigateurs modernes)
 
 ## Dependencies
-- [axios](https://www.npmjs.com/package/axios)
+- Aucune (utilise `fetch`)
+
+## Usage en HTML pur
+```html
+<script src="lighttable.js"></script>
+<script>
+  const lightTable = new LightTable({
+    baseUrl: 'https://lb01.genielabel.com/sdk/v1/lighttable',
+    store: 'YOUR_STORE_ID',
+  });
+
+  lightTable.getMe().then(console.log);
+</script>
+```
 
 ## Example: Authentication with OTP
 ```js

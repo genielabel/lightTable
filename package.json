@@ -1,6 +1,6 @@
 {
-  "name": "@lighttable/lighttable",
-  "version": "1.0.0-beta027",
+  "name": "@labelflowai/lighttable",
+  "version": "27.03.26.2",
   "description": "Universal SDK to access LightTable (compatible with Node.js, React, Next.js, Vite).",
   "main": "lighttable.js",
   "exports": {
@@ -27,8 +27,7 @@
     "url": "https://github.com/genielabel/lightTable.git"
   },
   "dependencies": {
-    "@lighttable/lighttable": "github:genielabel/lightTable",
-    "axios": ">=0.27.0"
+    "@labelflowai/lighttable": "github:genielabel/lightTable"
   },
   "engines": {
     "node": ">=14.0.0"

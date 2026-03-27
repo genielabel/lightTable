@@ -1,13 +1,100 @@
-const axios = require('axios');
+const _globalScope = typeof globalThis !== 'undefined'
+  ? globalThis
+  : (typeof self !== 'undefined'
+    ? self
+    : (typeof window !== 'undefined'
+      ? window
+      : (typeof global !== 'undefined' ? global : {})));
+
+const _resolveFetch = (fetchImpl) => {
+  if (typeof fetchImpl === 'function') return fetchImpl;
+  if (typeof _globalScope.fetch === 'function') return _globalScope.fetch.bind(_globalScope);
+  return null;
+};
+
+const _buildUrl = (url, params) => {
+  if (!params || Object.keys(params).length === 0) return url;
+  const u = new URL(url);
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === null) continue;
+    if (Array.isArray(value)) {
+      for (const v of value) u.searchParams.append(key, String(v));
+    } else {
+      u.searchParams.set(key, String(value));
+    }
+  }
+  return u.toString();
+};
+
+const createHttpClient = (fetchImpl) => {
+  const fetchFn = _resolveFetch(fetchImpl);
+  if (!fetchFn) {
+    throw new Error('Fetch API non disponible. Utilisez Node.js >= 18 ou fournissez `fetch` dans le constructeur.');
+  }
+
+  const request = async (method, url, data, config = {}) => {
+    const finalUrl = _buildUrl(url, config.params);
+    const headers = { ...(config.headers || {}) };
+    const options = { method, headers };
+
+    if (data !== undefined) {
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+      options.body = JSON.stringify(data);
+    }
+
+    const res = await fetchFn(finalUrl, options);
+    const contentType = res.headers && res.headers.get ? res.headers.get('content-type') : '';
+    let responseData;
+    if (contentType && contentType.includes('application/json')) {
+      responseData = await res.json();
+    } else {
+      const text = await res.text();
+      try {
+        responseData = text ? JSON.parse(text) : null;
+      } catch (err) {
+        responseData = text;
+      }
+    }
+
+    if (!res.ok) {
+      const error = new Error(`HTTP ${res.status}`);
+      error.response = { status: res.status, data: responseData, headers: res.headers };
+      throw error;
+    }
+
+    return { data: responseData, status: res.status, headers: res.headers };
+  };
+
+  return {
+    request,
+    get: (url, config) => request('GET', url, undefined, config),
+    post: (url, data, config) => request('POST', url, data, config),
+    put: (url, data, config) => request('PUT', url, data, config),
+  };
+};
 
 class LightTable {
-  constructor({ baseUrl,marketplaceKey, store, token = null,system = null }) {
+  constructor({ baseUrl, marketplaceKey, store, token = null, system = null, fetch: fetchImpl } = {}) {
     this.baseUrl = (baseUrl || 'https://lb01.genielabel.com/sdk/v1/lighttable').replace(/\/$/, '');
     if (!store) throw new Error("`store` est requis");
 
     this.store = store;
     this.marketplace = marketplaceKey;
-    this.system = system;
+    if (system) {
+      if (typeof system.post === 'function' && typeof system.get === 'function') {
+        this.system = system;
+      } else if (system && typeof system.fetch === 'function' && (!system.post || !system.get)) {
+        this.system = createHttpClient(system.fetch.bind(system));
+      } else if (typeof system === 'function') {
+        this.system = createHttpClient(system);
+      } else {
+        throw new Error("`system` doit etre une fonction fetch ou un client avec get/post/put");
+      }
+    } else {
+      this.system = null;
+    }
+
+    this._http = this.system ? null : createHttpClient(fetchImpl);
 
     // Vérifie si un token existe déjà dans localStorage
     if (!token && typeof window !== 'undefined' && window.localStorage) {
@@ -48,7 +135,7 @@ class LightTable {
 
     }
 
-    const res = await axios.post(`${this.baseUrl}/auth-otp`, { type, phone, email }, {
+    const res = await this._http.post(`${this.baseUrl}/auth-otp`, { type, phone, email }, {
       headers: this._headers()
     });
 
@@ -70,7 +157,7 @@ class LightTable {
 
     }
 
-    const res = await axios.post(`${this.baseUrl}/signed-url`, { key}, {
+    const res = await this._http.post(`${this.baseUrl}/signed-url`, { key}, {
       headers: this._headers()
     });
 
@@ -111,7 +198,7 @@ class LightTable {
 
 
 
-    const res = await axios.post(`${this.baseUrl}/auth-otp/verify`, { code, phone, email }, {
+    const res = await this._http.post(`${this.baseUrl}/auth-otp/verify`, { code, phone, email }, {
 
       // le store est requis ici aussi
       params: {},
@@ -146,7 +233,7 @@ class LightTable {
           return res.data;
 
         }
-    const res = await axios.get(`${this.baseUrl}/me`, {
+    const res = await this._http.get(`${this.baseUrl}/me`, {
       headers: {
         ...this._headers(),
         'x-store-id': this.store
@@ -172,7 +259,7 @@ class LightTable {
 
     }
 
-    const res = await axios.put(`${this.baseUrl}/me`, payload, {
+    const res = await this._http.put(`${this.baseUrl}/me`, payload, {
       headers: {
         ...this._headers(),
         'x-store-id': this.store
@@ -200,7 +287,7 @@ class LightTable {
         }
 
 
-    const res = await axios.post(`${this.baseUrl}/function`, payload, {
+    const res = await this._http.post(`${this.baseUrl}/function`, payload, {
       headers: {
         ...this._headers(),
         'x-store-id': this.store
@@ -229,7 +316,7 @@ class LightTable {
       }
 
 
-      const res = await axios.post(`${this.baseUrl}/checkout`, payload, {
+      const res = await this._http.post(`${this.baseUrl}/checkout`, payload, {
         headers: {
           ...this._headers(),
           'x-store-id': this.store
@@ -329,7 +416,7 @@ class LightTable {
 
       }
 
-      const res = await axios.post(`${this.baseUrl}`, {
+      const res = await this._http.post(`${this.baseUrl}`, {
         operation,
         args: finalArgs,
         params,
@@ -445,7 +532,7 @@ class LightTable {
       }
 
 
-      const res = await axios.post(`${this.baseUrl}`, {
+      const res = await this._http.post(`${this.baseUrl}`, {
         operation,
         args: finalArgs,
           params,
@@ -571,7 +658,7 @@ class LightTable {
 
       }
 
-      const res = await axios.post(`${this.baseUrl}`, {
+      const res = await this._http.post(`${this.baseUrl}`, {
         operation,
         args: finalArgs,
           params,
@@ -694,7 +781,7 @@ class LightTable {
         return res.data.data;
 
       }
-      const res = await axios.post(`${this.baseUrl}`, {
+      const res = await this._http.post(`${this.baseUrl}`, {
         operation,
         args: finalArgs,
           params,
@@ -817,7 +904,7 @@ invoices(name) {
       }
 
 
-      const res = await axios.post(`${this.baseUrl}`, {
+      const res = await this._http.post(`${this.baseUrl}`, {
         operation,
         args: finalArgs,
           params,
@@ -948,7 +1035,7 @@ invoices(name) {
 
         }
 
-        const res = await axios.post(`${this.baseUrl}`, {
+        const res = await this._http.post(`${this.baseUrl}`, {
           operation,
           args: finalArgs,
             params,
@@ -1084,7 +1171,7 @@ invoices(name) {
 
           }
 
-          const res = await axios.post(`${this.baseUrl}`, {
+          const res = await this._http.post(`${this.baseUrl}`, {
             operation,
             args: finalArgs,
               params,
@@ -1117,4 +1204,11 @@ invoices(name) {
       }
 }
 
-module.exports = LightTable;
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = LightTable;
+  module.exports.default = LightTable;
+} else if (typeof define === 'function' && define.amd) {
+  define(() => LightTable);
+} else {
+  _globalScope.LightTable = LightTable;
+}
