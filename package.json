@@ -1,6 +1,6 @@
 {
   "name": "@labelflowai/lighttable",
-  "version": "27.03.26.3",
+  "version": "27.04.05",
   "description": "Universal SDK to access LightTable (compatible with Node.js, React, Next.js, Vite).",
   "main": "lighttable.js",
   "exports": {
