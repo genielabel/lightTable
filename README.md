@@ -1,11 +1,11 @@
-# @labelflowai/lighttable
+# @lbflow/lighttable
 
 Universal SDK to access the LightTable  (compatible with Node.js, React, Next.js, Vite).
 
 ## Installation
 
 ```bash
-npm install @labelflowai/lighttable
+npm install @lbflow/lighttable
 ```
 
 ## Usage
@@ -13,9 +13,9 @@ npm install @labelflowai/lighttable
 ### Node.js / Vite / Next.js / React
 
 ```js
-import LightTable from '@labelflowai/lighttable';
+import LightTable from '@lbflow/lighttable';
 // or in CommonJS:
-// const LightTable = require('@labelflowai/lighttable');
+// const LightTable = require('@lbflow/lighttable');
 
 // Node.js < 18 : fournissez un fetch polyfill
 // import fetch from 'node-fetch';
@@ -26,7 +26,7 @@ const lightTable = new LightTable({
 
 
 
-  sdk/v1/lighttable',
+sdk/v1/lighttable',
   store: 'YOUR_STORE_ID',
 });
 
@@ -117,15 +117,89 @@ const products = await lightTable
 - Works in Node.js, React, Next.js, Vite (SSR and browser)
 - Token management (JWT)
 - File upload and signed URL support
+- Store-scoped Node.js function invocation through sandbox
+
+### Node.js Functions
+
+Call a function created with `lighttable-cli function create`. The function receives the JSON object in `env` and its returned value is returned by the SDK call.
+
+```js
+const result = await lightTable.function('calculate-total', {
+  env: { items: [{ price: 12, quantity: 2 }] }
+});
+```
+
+Function results can also be private file descriptors. The returned object has `type: 'lighttable-file'`, `name`, `mimeType`, `size`, `downloadUrl`, and `expiresAt`; the storage key is not exposed. Download URLs last 7 hours by default. Set `downloadUrlTtlSeconds` per call from 60 seconds through 7 days. Sandbox streams files up to 1 GB directly to private filesystem; the application server does not read or parse file bytes. Downloads are forced to `application/octet-stream` and `Content-Disposition: attachment`; `mimeType` is informational.
+
+```js
+const report = await lightTable.function('export-report', {
+  env: { collection: 'orders' },
+  downloadUrlTtlSeconds: 3600
+});
+
+if (report.type === 'lighttable-file') {
+  const link = document.createElement('a');
+  link.href = report.downloadUrl;
+  link.download = report.name;
+  link.click();
+}
+```
+
+Function execution uses a unique store-scoped LightTable token that expires after 30 minutes. Functions are denied to SDK customers unless their `public` or `user` role is explicitly enabled. The `user` role does not include restricted `rules` admins; `public` allows every caller when deliberately configured. Function source and npm dependencies should be treated as trusted code.
+
+Inside a function, the injected token can initialize this SDK to query the same store:
+
+```js
+import LightTable from '@lbflow/lighttable';
+
+export default async ({ env }) => {
+  const lightTable = new LightTable({
+    baseUrl: process.env.LIGHTTABLE_BASE_URL,
+    store: process.env.LIGHTTABLE_STORE,
+    token: process.env.LIGHTTABLE_TOKEN
+  });
+  return lightTable.collection(env.collection).findOne(env.filter).exec();
+};
+```
+
+To return a file from a function, write it below `/workspace/output/` and return the `file()` helper supplied as the handler's second argument. Sandbox streams it directly to private filesystem; the application server handles metadata only. Files are limited to 1 GB and the signed URL lasts 7 hours by default.
+
+```js
+import { writeFile } from 'node:fs/promises';
+
+export default async ({ env }, { file }) => {
+  const outputPath = '/workspace/output/report.csv';
+  await writeFile(outputPath, env.csv);
+  return file({ path: outputPath, name: 'report.csv', mimeType: 'text/csv' });
+};
+```
+
+Les écritures peuvent uploader directement les fichiers associés à un champ. Le fichier peut être un `File`, `Blob`, `Buffer`, `Uint8Array` ou `ArrayBuffer`.
+
+```js
+const products = lightTable.collection('products');
+await products.create(
+  { name: 'Produit avec image', image: file }
+);
+await products.updateOne(
+  { _id: productId },
+  { $set: { name: 'Produit modifié', image: file } }
+);
+await products.save({ ...document, image: file });
+await products.saveMany([
+  { ...document1, image: file1 },
+  { ...document2, image: file2 }
+]);
+```
 
 
 
 
 ## Example: Checkout
 ```js
-import LightTable from '@labelflowai/lighttable';
+import LightTable from '@lbflow/lighttable';
 // or in CommonJS:
-// const LightTable = require('@labelflowai/lighttable');
+// const LightTable = require('@lbflow/lighttable');
 
 const lightTable = new LightTable({
   baseUrl: 'https://mfumu.labelflow.co/sdk/v1/lighttable',
